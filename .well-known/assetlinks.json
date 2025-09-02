@@ -6,9 +6,9 @@
     ],
     "target": {
       "namespace": "android_app",
-      "package_name": "cheersec.withease.netsec.FwDev",
+      "package_name": "cheersec.withease.netsec",
       "sha256_cert_fingerprints": [
-        "F0:12:34:56:78:9A:BC:DE:F1:23:45:67:89:AB:CD:EF:01:23:45:67:89:AB:CD:EF:01:23:45:67:89:AB:CD:EF"
+        "05:DC:3A:2C:CD:AF:89:BC:D2:29:09:4F:DA:BE:66:A0:3A:75:FF:1D:F0:0D:E2:FE:3F:97:78:88:21:3D:D9:FE"
       ]
     }
   }
