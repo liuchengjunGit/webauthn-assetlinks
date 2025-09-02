@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.get_login_creds",
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "cheersec.withease.netsec.FwDev",
+      "sha256_cert_fingerprints": [
+        "12:34:56:78:90:AB:CD:EF:..."
+      ]
+    }
+  }
+]
