@@ -1,11 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
+
 <head>
-  <meta charset="utf-8">
-  <title>WebAuthn Test</title>
+  <meta charset="UTF-8">
+  <title>Passkeys 登録・認証デモ</title>
 </head>
+
 <body>
-  <h1>Hello WebAuthn</h1>
-  <p>My domain is working with GitHub Pages + HTTPS ✅</p>
+  <h1>FIDO2 Passkeys 登録・認証デモ</h1>
+  <label for="input">Input：</label><br />
+  <textarea id="input" cols="100" rows="50"></textarea>
+  <br><br>
+  <button onclick="register()">登録 (create)</button>
+  <button onclick="authenticate()">認証 (get)</button>
+  <br><br>
+  <textarea id="output" cols="100" rows="50"></textarea>
+
+  <script>
+    async function register() {
+      const inputText = document.getElementById('input').value;
+      if (!inputText) return alert("入力してください。");
+
+      try {
+        const parsed = JSON.parse(inputText);
+        const publicKey = parsed.makeCredentialRequestV1;
+
+        // challenge と user.id を ArrayBuffer に変換
+        publicKey.challenge = base64ToArrayBuffer(publicKey.challenge);
+        publicKey.user.id = base64ToArrayBuffer(publicKey.user.id);
+        if (Array.isArray(publicKey.excludeCredentials)) {
+          publicKey.excludeCredentials.forEach(element => {
+            element.id = base64ToArrayBuffer(element.id);
+          });
+        }
+
+        const credential = await navigator.credentials.create({ publicKey });
+        console.log("登録結果:", credential);
+        const response = JSON.stringify({
+          makeCredentialResponseV1: {
+            id: credential.id,
+            response: {
+              clientDataJSON: bufferToBase64(credential.response.clientDataJSON),
+              attestationObject: bufferToBase64(credential.response.attestationObject)
+            },
+            type: credential.type
+          }
+        });
+        document.getElementById('output').value = response;
+        alert("登録成功しました。");
+      } catch (err) {
+        console.error("登録失敗:", err);
+        alert("登録に失敗しました: " + err.message);
+      }
+    }
+
+    async function authenticate() {
+      const inputText = document.getElementById('input').value;
+      if (!inputText) return alert("入力してください。");
+
+      try {
+        const parsed = JSON.parse(inputText);
+        const publicKey = parsed.getAssertionRequestV1;
+
+        publicKey.challenge = base64ToArrayBuffer(publicKey.challenge);
+
+        // allowCredentials.id の Base64 → ArrayBuffer 変換
+        if (Array.isArray(publicKey.allowCredentials)) {
+          publicKey.allowCredentials.forEach(cred => {
+            cred.id = base64ToArrayBuffer(cred.id);
+          });
+        }
+
+        const assertion = await navigator.credentials.get({ publicKey });
+        console.log("認証成功:", assertion);
+        alert("認証成功しました。");
+        document.getElementById('output').value = JSON.stringify({
+          getAssertionResponseV1: {
+            assertion: {
+              id: assertion.id,
+              response: {
+                clientDataJSON: bufferToBase64(assertion.response.clientDataJSON),
+                authenticatorData: bufferToBase64(assertion.response.authenticatorData),
+                signature: bufferToBase64(assertion.response.signature),
+                userHandle: assertion.response.userHandle ? bufferToBase64(assertion.response.userHandle) : null
+              },
+              type: assertion.type
+            },
+          }
+        });
+      } catch (err) {
+        console.error("認証失敗:", err);
+        alert("認証に失敗しました: " + err.message);
+      }
+    }
+
+    function base64ToArrayBuffer(base64) {
+      const binary = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function bufferToBase64(buffer) {
+      // ArrayBuffer → Uint8Array → 文字列 → Base64
+      return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+    }
+  </script>
 </body>
+
 </html>
