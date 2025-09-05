@@ -2,7 +2,7 @@
   {
     "relation": ["delegate_permission/common.get_login_creds"],
     "target": {
-      "namespace": "FIDOApp",
+      "namespace": "android_app",
       "package_name": "cheersec.withease.netsec.FwDev",
       "sha256_cert_fingerprints": [
         "cbb688b42cb377747ecd33c9dda3d5a6691aa63aec1834e3741054585bae5ede"
